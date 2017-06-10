@@ -1,6 +1,7 @@
 import React, { Component } from 'react'; // knows how to work with components, how to translate them
 import ReactDOM from 'react-dom'; // knows how to interact the components with the DOM
 import YTSearch from 'youtube-api-search';
+import _ from 'lodash';
 
 import SearchBar from './components/search_bar';
 import VideoList from './components/video_list';
@@ -15,7 +16,10 @@ class App extends Component {
             videos: [],
             selectedVideo: null,
         };
-         YTSearch({key: API_KEY, term: 'Sinjin Hawke'}, (videos) => {
+        this.videoSearch('search');
+    }
+    videoSearch(term){
+        YTSearch({key: API_KEY, term}, (videos) => {
             this.setState({ 
                 videos,
                 selectedVideo: videos[0],
@@ -23,9 +27,11 @@ class App extends Component {
         });
     }
     render(){
+        const videoSearch = _.debounce((term)=>{ this.videoSearch(term) }, 300);
+
         return (
             <div>
-                <SearchBar />
+                <SearchBar onSearchTermChange={ videoSearch } />
                 <VideoDetail video={ this.state.selectedVideo } />
                 <VideoList onVideoSelect={ selectedVideo => this.setState({ selectedVideo })}
                 videos={ this.state.videos } />
